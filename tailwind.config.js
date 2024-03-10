@@ -10,7 +10,7 @@ export default {
   },
   plugins: [daisyui],
   daisyui: {
-    themes: ["cupcake"]
+    themes: ["light"]
   }
 }
 

@@ -1,32 +1,58 @@
 import _pattern from './patterns';
 
 interface Meta {
-    [key: string]: string | boolean;
+    [key: string]: string;
 }
 
-interface Result {
-    meta?: Meta;
+export interface MetaTags {
+    description: string;
+    image: string;
+    title: string;
+}
+
+export interface Result {
+    meta?: MetaTags;
     error: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     msg?: any;
 }
 
-async function fetchMetaData(url: string): Promise<string> {
-    //   const response = await got(url, { timeout: {
-    //     socket: 3000
-    //   }});
-    console.log("url: ", url)
-    // const response = await axios.get(url)
-    const response = await (await fetch(url)).text()
-    
-    let headContent = response.match(/<head[^>]*>[\s\S]*<\/head>/gi)?.[0] ?? response;
-    headContent = headContent.replace(/(<style[\w\W]+style>)/gi, '').replace(/(<script[\w\W]+script>)/gi, '');
-    return headContent;
+function parseRelevantTags(parsedMetatags: Meta): MetaTags {
+    // Define default values
+  let description = '', image = '', title = '';
+
+  // Prioritize tags for description
+  if (parsedMetatags["og:description"]) {
+    description = parsedMetatags["og:description"];
+  } else if (parsedMetatags["twitter:description"]) {
+    description = parsedMetatags["twitter:description"];
+  } else if (parsedMetatags["description"]) {
+    description = parsedMetatags["description"];
+  }
+
+  // Prioritize tags for image
+  if (parsedMetatags["og:image"]) {
+    image = parsedMetatags["og:image"];
+  } else if (parsedMetatags["twitter:image"]) {
+    image = parsedMetatags["twitter:image"];
+  } else if (parsedMetatags["image"]) {
+    image = parsedMetatags["image"];
+  }
+
+  // Prioritize tags for title
+  if (parsedMetatags["og:title"]) {
+    title = parsedMetatags["og:title"];
+  } else if (parsedMetatags["twitter:title"]) {
+    title = parsedMetatags["twitter:title"];
+  } else if (parsedMetatags["title"]) {
+    title = parsedMetatags["title"];
+  }
+  return { description, image, title };
 }
 
-function extractMeta(headContent: string, url: string, isHTML: boolean): Meta {
+function extractMeta(headContent: string): MetaTags {
     const meta: Meta = {};
-    const source = isHTML ? url : headContent;
+    const source = headContent;
 
     _pattern.forEach((el) => {
         el.KEYS.forEach((key) => {
@@ -38,30 +64,17 @@ function extractMeta(headContent: string, url: string, isHTML: boolean): Meta {
         });
     });
 
-    return meta;
+    return parseRelevantTags(meta);
 }
 
-function validateUrl(url: string): boolean {
-    return url.startsWith('http://') || url.startsWith('https://');
-}
-
-export const gmeta = async (url: string, isHTML: boolean = false): Promise<Result> => {
+export const gmeta = (html: string): Result => {
     try {
-        if (!url) {
-            throw new Error('URL is required');
-        }
-
-        if (!validateUrl(url) && !isHTML) {
-            throw new Error('Invalid URL');
-        }
-
-        const headContent = isHTML ? url : await fetchMetaData(url);
-        const meta = extractMeta(headContent, url, isHTML);
+        const meta = extractMeta(html);
 
         return {
             meta,
             error: false
-        }; // Return the meta data for async/await patterns
+        };
     } catch (error) {
         console.error(error)
         return {

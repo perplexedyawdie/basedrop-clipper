@@ -12,7 +12,10 @@
   "dependencies": {
     "axios": "^1.6.7",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-select": "^5.8.0",
+    "react-tabs": "^6.0.2",
+    "reactflow": "^11.10.4"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.23",
@@ -22,7 +25,7 @@
     "@typescript-eslint/parser": "^7.0.2",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.18",
-    "chrome-types": "^0.1.270",
+    "chrome-types": "^0.1.271",
     "daisyui": "^4.7.2",
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
