@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useMemo } from 'react';
 import ReactFlow, {
     MiniMap,
     Controls,
@@ -15,11 +15,13 @@ import ReactFlow, {
     EdgeChange,
     ReactFlowProvider,
     ReactFlowInstance,
+    Node,
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
+import MediaDisplay from './MediaDisplay';
 
-const initialNodes = [];
+const initialNodes: Node[] = [];
 
 const initialEdges = [];
 
@@ -36,19 +38,20 @@ function InspoBoard() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
-
+    const nodeTypes = useMemo(() => ({ mediaDisplay: MediaDisplay }), []);
 
     const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
     const onDragOver = useCallback((event) => {
         event.preventDefault();
+        
         event.dataTransfer.dropEffect = 'move';
     }, []);
 
     const onDrop = useCallback(
         (event) => {
             event.preventDefault();
-
+            
             const type = event.dataTransfer.getData('application/reactflow');
 
             // check if the dropped element is valid
@@ -80,19 +83,6 @@ function InspoBoard() {
     );
     return (
         <>
-            {/* <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-            >
-                
-                <Controls />
-                <Background
-                    variant={BackgroundVariant.Cross}
-                />
-            </ReactFlow> */}
             <ReactFlowProvider>
                 <div className="w-[80vw] h-[80vh]" ref={reactFlowWrapper}>
                     <ReactFlow
@@ -105,6 +95,7 @@ function InspoBoard() {
                         onDrop={onDrop}
                         onDragOver={onDragOver}
                         fitView
+                        nodeTypes={nodeTypes}
                     >
                         <Background
                     variant={BackgroundVariant.Cross}
