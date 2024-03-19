@@ -1,84 +1,85 @@
-import _pattern from './patterns';
-
-interface Meta {
-    [key: string]: string;
-}
-
 export interface MetaTags {
-    description: string;
-    image: string;
-    title: string;
+  description: string;
+  image: string;
+  title: string;
 }
 
 export interface Result {
-    meta?: MetaTags;
-    error: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    msg?: any;
+  meta?: MetaTags;
+  error: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  msg?: any;
 }
 
-function parseRelevantTags(parsedMetatags: Meta): MetaTags {
-    // Define default values
-  let description = '', image = '', title = '';
-
-  // Prioritize tags for description
-  if (parsedMetatags["og:description"]) {
-    description = parsedMetatags["og:description"];
-  } else if (parsedMetatags["twitter:description"]) {
-    description = parsedMetatags["twitter:description"];
-  } else if (parsedMetatags["description"]) {
-    description = parsedMetatags["description"];
+async function fetchMetaData(url: string): Promise<string | null> {
+  try {
+    console.log(url)
+    const response = await (await fetch(url)).text()
+    return response;
+  } catch (error) {
+    console.error(error)
+    return null
   }
 
-  // Prioritize tags for image
-  if (parsedMetatags["og:image"]) {
-    image = parsedMetatags["og:image"];
-  } else if (parsedMetatags["twitter:image"]) {
-    image = parsedMetatags["twitter:image"];
-  } else if (parsedMetatags["image"]) {
-    image = parsedMetatags["image"];
-  }
-
-  // Prioritize tags for title
-  if (parsedMetatags["og:title"]) {
-    title = parsedMetatags["og:title"];
-  } else if (parsedMetatags["twitter:title"]) {
-    title = parsedMetatags["twitter:title"];
-  } else if (parsedMetatags["title"]) {
-    title = parsedMetatags["title"];
-  }
-  return { description, image, title };
 }
 
-function extractMeta(headContent: string): MetaTags {
-    const meta: Meta = {};
-    const source = headContent;
+function extractMetaInfo(html: string): MetaTags {
+  // Enhanced regular expressions to match various description, title, and image URL meta tags
+  const descriptionRegex = /<meta\s+(?:name|property)=["'](description|og:description)["']\s+content=["'](.*?)["']/i;
+  const titleRegex = /<title>(.*?)<\/title>|<meta\s+(?:name|property)=["'](title|og:title)["']\s+content=["'](.*?)["']/i;
+  const imageRegex = /<meta\s+(?:name|property)=["'](og:image|image)["']\s+content=["'](.*?)["']/i;
+  
+  // Extracting content using the regular expressions with adjustments for capturing groups
+  const descriptionMatch = html.match(descriptionRegex);
+  const titleMatch = html.match(titleRegex) || ['', '', ''];
+  const imageMatch = html.match(imageRegex);
 
-    _pattern.forEach((el) => {
-        el.KEYS.forEach((key) => {
-            const regex = new RegExp(el.pattern.split('{{KEY}}').join(key), 'i');
-            const match = source.match(regex);
-            if (match) {
-                meta[key] = match[1];
-            }
-        });
-    });
+  // Adjusting capturing group extraction based on the matched pattern
+  const description = descriptionMatch ? descriptionMatch[2] : '';
+  const title = titleMatch ? (titleMatch[1] ? titleMatch[1] : titleMatch[3]) : ''; // Considering both <title> and meta variations
+  const image = imageMatch ? imageMatch[2] : '';
 
-    return parseRelevantTags(meta);
+  // Returning the extracted information as an object
+  return {
+    description,
+    title,
+    image
+  };
+}
+
+export const urlPreviewData = async (url: string): Promise<Result> => {
+  try {
+    const headContent: string | null = await fetchMetaData(url);
+    if (headContent) {
+      const meta = extractMetaInfo(headContent);
+      return {
+        meta,
+        error: false
+      }
+    } else {
+      throw Error
+    }
+
+  } catch (error) {
+    console.error(error)
+    return {
+      error: true
+    }
+  }
 }
 
 export const gmeta = (html: string): Result => {
-    try {
-        const meta = extractMeta(html);
+  try {
+    const meta = extractMetaInfo(html);
 
-        return {
-            meta,
-            error: false
-        };
-    } catch (error) {
-        console.error(error)
-        return {
-            error: true
-        }
+    return {
+      meta,
+      error: false
+    };
+  } catch (error) {
+    console.error(error)
+    return {
+      error: true
     }
+  }
 };

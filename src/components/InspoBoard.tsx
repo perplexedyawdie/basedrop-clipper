@@ -1,6 +1,5 @@
-import { useCallback, useState, useRef, useMemo } from 'react';
+import { useCallback, useState, useRef, useMemo, useContext } from 'react';
 import ReactFlow, {
-    MiniMap,
     Controls,
     Background,
     useNodesState,
@@ -9,17 +8,17 @@ import ReactFlow, {
     Connection,
     Edge,
     BackgroundVariant,
-    applyEdgeChanges,
-    applyNodeChanges,
-    NodeChange,
-    EdgeChange,
     ReactFlowProvider,
     ReactFlowInstance,
     Node,
+    XYPosition,
 } from 'reactflow';
-
+import AsyncCreatableSelect from 'react-select/async-creatable';
 import 'reactflow/dist/style.css';
-import MediaDisplay from './MediaDisplay';
+import MediaDisplay, { MediaData } from './MediaDisplay';
+import { v4 as uuidv4 } from 'uuid';
+import AuthContext from '../context/AuthContext';
+import axios from 'axios';
 
 const initialNodes: Node[] = [];
 
@@ -34,6 +33,7 @@ const initialEdges = [];
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 function InspoBoard() {
+    const { token, status: authStatus, tableId } = useContext(AuthContext)
     const reactFlowWrapper = useRef(null);
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -47,6 +47,18 @@ function InspoBoard() {
         
         event.dataTransfer.dropEffect = 'move';
     }, []);
+
+    function addNode(position: XYPosition, type: string, data: MediaData) {
+
+        const newNode: Node<MediaData> = {
+            id: uuidv4(),
+            type,
+            position,
+            data,
+        };
+
+        setNodes((nds) => nds.concat(newNode));
+    }
 
     const onDrop = useCallback(
         (event) => {
@@ -67,20 +79,96 @@ function InspoBoard() {
                     x: event.clientX,
                     y: event.clientY,
                 });
-                const newNode = {
-                    id: getId(),
-                    type,
-                    position,
-                    data: { label: `${type} node` },
-                };
+                const dt = event.dataTransfer;
+                    // Check if the drag includes files
+                if (dt.types.includes('Files')) {
+                    const file = dt.files[0];
+                    // console.log(dt)
+                    const evtData = dt.getData('text/uri-list')
+                    // console.log(evtData)
 
-                setNodes((nds) => nds.concat(newNode));
+                    if (evtData !== "") {
+                        chrome.runtime.sendMessage({
+                            action: "getContentType",
+                            url: evtData
+                        })
+                            .then((data) => {
+                                console.log("content type")
+                                console.log(data)
+                                const mediaData: MediaData = { 
+                                    contentType: data.contentType,
+                                    content: evtData
+                                 }
+                                addNode(position, type, mediaData)
+                            })
+                            .catch(console.error)
+                    }
+
+                } else if (dt.types.includes('text/plain')) {
+                    // console.log(dt)
+                    const evtData = dt.getData('text/plain')
+
+                    if (evtData.startsWith('http://') || evtData.startsWith('https://')) {
+                        console.log('Dragging a well-formed URL.');
+                        if (evtData !== "") {
+                            chrome.runtime.sendMessage({
+                                action: "getContentType",
+                                url: evtData
+                            })
+                                .then((data) => {
+                                    console.log("content type")
+                                    console.log(data)
+                                    const mediaData: MediaData = { 
+                                        contentType: data.contentType,
+                                        content: evtData
+                                     }
+                                    addNode(position, type, mediaData)
+                                })
+                                .catch(console.error)
+                        }
+                    } else {
+                        console.log('Dragging generic text.');
+                        const mediaData: MediaData = { 
+                            contentType: 'text/plain',
+                            content: evtData
+                         }
+                        addNode(position, type, mediaData)
+                    }
+
+
+                }
             }
 
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [reactFlowInstance],
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async function handleSave(_event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
+        try {
+            //TODO handle not logged in & errors
+            if (reactFlowInstance && authStatus) {
+                const resp = await axios({
+                    method: "POST",
+                    url: `https://api.baserow.io/api/database/rows/table/${tableId}/?user_field_names=true`,
+                    headers: {
+                      Authorization: `Token ${token}`,
+                      "Content-Type": "application/json"
+                    },
+                    data: {
+                      "data": JSON.stringify(reactFlowInstance.toObject())
+                    }
+                  })
+                  console.log("save status")
+                  console.log(resp.data)
+            }
+
+        } catch (error) {
+            console.error(error)
+        }
+
+    }
+
     return (
         <>
             <ReactFlowProvider>
@@ -96,6 +184,7 @@ function InspoBoard() {
                         onDragOver={onDragOver}
                         fitView
                         nodeTypes={nodeTypes}
+                        
                     >
                         <Background
                     variant={BackgroundVariant.Cross}
@@ -104,6 +193,7 @@ function InspoBoard() {
                     </ReactFlow>
                 </div>
             </ReactFlowProvider>
+            <button className="btn btn-primary btn-block mt-4" onClick={handleSave}>Save</button>
         </>
     )
 }
