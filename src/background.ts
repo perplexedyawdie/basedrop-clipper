@@ -38,49 +38,69 @@ chrome.runtime.onMessage.addListener(
             }
             case "getMetaTagsFromURL": {
                 urlPreviewData(request.url)
-                .then((value) => {
-                    if (!value.error && value.meta) {
-                        console.log(value.meta)
-                        sendResponse({
-                            data: value.meta,
-                            error: null
-                        })
-                    } else {
-                        throw value.error
-                    }
-                })
-                .catch((error) => {
-                    console.error(error)
-                    sendResponse({
-                        data: null,
-                        error: error
+                    .then((value) => {
+                        if (!value.error && value.meta) {
+                            console.log(value.meta)
+                            sendResponse({
+                                data: value.meta,
+                                error: null
+                            })
+                        } else {
+                            throw value.error
+                        }
                     })
-                })
+                    .catch((error) => {
+                        console.error(error)
+                        sendResponse({
+                            data: null,
+                            error: error
+                        })
+                    })
                 break;
             }
             case "getContentType": {
                 fetchContentType(request.url)
-                .then((value) => {
-                    if (value.data) {
-                        sendResponse({
-                            contentType: value.data
-                        })
-                    } else {
+                    .then((value) => {
+                        if (value.data) {
+                            sendResponse({
+                                contentType: value.data
+                            })
+                        } else {
+                            sendResponse({
+                                contentType: null
+                            })
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(error)
                         sendResponse({
                             contentType: null
                         })
-                    }
-                })
-                .catch((error) => {
-                    console.error(error)
-                    sendResponse({
-                        contentType: null
                     })
-                })
-                .finally(() => {
-                    return true
-                })
+                    .finally(() => {
+                        return true
+                    })
                 break;
+            }
+            case "authCheck": {
+                fetch("http://localhost:3000/api/auth/session", {
+                    mode: 'cors',
+                })
+                    .then(response => response.json())
+                    .then((session) => {
+                        if (Object.keys(session).length > 0) {
+                            sendResponse({
+                                session
+                            })
+                        } else {
+                            sendResponse(null)
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        sendResponse(null)
+                    })
+                return true;
             }
             default:
                 break;

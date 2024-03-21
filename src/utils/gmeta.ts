@@ -49,6 +49,8 @@ function extractMetaInfo(html: string): MetaTags {
 
 export const urlPreviewData = async (url: string): Promise<Result> => {
   try {
+    console.log("url")
+    console.log(url)
     const headContent: string | null = await fetchMetaData(url);
     if (headContent) {
       const meta = extractMetaInfo(headContent);

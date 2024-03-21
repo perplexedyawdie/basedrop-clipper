@@ -1,12 +1,12 @@
 import { Dispatch, SetStateAction, createContext } from 'react'
 
+export interface BlockData {
+    nodeId: string;
+    document: string;
+}
 interface AuthData {
-    status: boolean;
-    token: string;
-    tableId: number | undefined;
-    setStatus: Dispatch<SetStateAction<boolean>>;
-    setToken: Dispatch<SetStateAction<string>>;
-    setTableId: Dispatch<SetStateAction<number | undefined>>;
+    blockData: BlockData[];   
+    setBlockData: Dispatch<SetStateAction<BlockData[]>>;    
 }
 
 const AuthContext  = createContext<AuthData>({} as AuthData)
