@@ -24,7 +24,7 @@ Basedrop Space helps you gather inspiration and brainstorm visually. Drag and dr
 
 ### Installation
 
-1. Download the latest release of the extension as a zip file from the Releases: https://github.com/perplexedyawdie/basedrop-clipper/releases tab of this repository.
+1. Download the latest release of the extension as a zip file from the Releases: https://github.com/perplexedyawdie/basedrop-clipper/releases/download/v1.0.0/dist.zip tab of this repository.
 
 2. Unzip the file & you should have a `dist` folder. 
 
@@ -46,6 +46,25 @@ Basedrop Space helps you gather inspiration and brainstorm visually. Drag and dr
 
 - Organize your captured content by creating mood boards, adding labels or any way you wish.
 
+### Roadmap
+
+#### Coming Soon:
+
+- Enhanced Link Rendering: View and interact with documents, spreadsheets, calendars, and more, directly within your boards.
+
+- Category Tagging: Organize your ideas with flexible tags for easy sorting and filtering.
+
+#### In Development:
+
+- Widget Integration: Expand your workspace with tools like a color picker and local file upload.
+
+- Widget Builder: Create your own simple custom widgets to personalize your boards further.
+
+#### Future Possibilities:
+
+- Dynamic Widgets: Add widgets that update in real-time based on data sources or user interactions.
+
+- Collaboration Features: Share boards and work together with others.
 
 ## Author
 
