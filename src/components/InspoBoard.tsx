@@ -78,8 +78,9 @@ function InspoBoard() {
             // and you don't need to subtract the reactFlowBounds.left/top anymore
             // details: https://reactflow.dev/whats-new/2023-11-10
             
-               
+               console.log("dropped")
                 if (reactFlowInstance && boardId) {
+                    console.log("adding node")
                     const position = reactFlowInstance.screenToFlowPosition({
                         x: event.clientX,
                         y: event.clientY,

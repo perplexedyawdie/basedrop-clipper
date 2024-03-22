@@ -54,6 +54,8 @@ Basedrop Space helps you gather inspiration and brainstorm visually. Drag and dr
 
 - Category Tagging: Organize your ideas with flexible tags for easy sorting and filtering.
 
+- BYOD (Bring Your Own Database): Add your Baserow DB token & take ownership of your data.
+
 #### In Development:
 
 - Widget Integration: Expand your workspace with tools like a color picker and local file upload.
