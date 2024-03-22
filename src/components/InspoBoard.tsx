@@ -20,19 +20,13 @@ import MediaDisplay, { MediaData } from './MediaDisplay';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
-import CreateBoardModal from './CreateBoardModal';
+// import CreateBoardModal from './CreateBoardModal';
 import { ActionMeta, SingleValue } from 'react-select';
 import AuthContext from '../context/AuthContext';
+import toast, { Toaster } from 'react-hot-toast';
 const initialNodes: Node[] = [];
 const BASE_URL_DEV = "http://localhost:3000"
-// const initialNodes = [
-//     { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-//     { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
-// ];
 
-// const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-///api/auth/session
 interface Option {
     readonly label: string;
     readonly value: string;
@@ -184,6 +178,21 @@ function InspoBoard() {
                     })
                 })
                 //todo react hot toast alert
+                toast.success("Board saved!")
+            }
+            if (!isAuth) {
+                toast((t) => (
+                    <span>
+                      <button className="btn btn-primary" onClick={() => {
+                        toast.dismiss(t.id);
+                        chrome.tabs.create({ url: BASE_URL_DEV });
+                      }}>
+                        Click to login!
+                      </button>
+                    </span>
+                  ), {
+                    position: "bottom-center"
+                  });
             }
 
         } catch (error) {
@@ -265,7 +274,20 @@ function InspoBoard() {
             setBoardId(resp.data.boardId)
             setUserBoards((prev) => [...prev, { value: resp.data.boardId, label: resp.data.boardName }])
             setValue({ value: resp.data.boardId, label: resp.data.boardName })
+            toast.success("Board created!")
             
+        }
+        if (!isAuth) {
+            toast((t) => (
+                <span>
+                  <button className="btn btn-primary" onClick={() => {
+                    toast.dismiss(t.id);
+                    chrome.tabs.create({ url: BASE_URL_DEV });
+                  }}>
+                    Click to login!
+                  </button>
+                </span>
+              ));
         }
     }
 
@@ -289,10 +311,23 @@ function InspoBoard() {
             }
             // todo try catch handle error react toast alert
         }
+        if (!isAuth) {
+            toast((t) => (
+                <span>
+                  <button className="btn btn-primary" onClick={() => {
+                    toast.dismiss(t.id);
+                    chrome.tabs.create({ url: BASE_URL_DEV });
+                  }}>
+                    Click to login!
+                  </button>
+                </span>
+              ));
+        }
     }
 
     return (
         <div className="flex flex-col justify-center items-center space-y-4">
+            <Toaster/>
         {/* 
         //TODO create board name/desc component
         //TODO create board name/desc input component
