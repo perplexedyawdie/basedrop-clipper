@@ -83,7 +83,7 @@ chrome.runtime.onMessage.addListener(
                 break;
             }
             case "authCheck": {
-                fetch("http://localhost:3000/api/auth/session", {
+                fetch("https://basedrop.space/api/auth/session", {
                     mode: 'cors',
                 })
                     .then(response => response.json())

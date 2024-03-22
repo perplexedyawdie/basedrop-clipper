@@ -25,7 +25,7 @@ import { ActionMeta, SingleValue } from 'react-select';
 import AuthContext from '../context/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 const initialNodes: Node[] = [];
-const BASE_URL_DEV = "http://localhost:3000"
+const BASE_URL_DEV = "https://basedrop.space"
 
 interface Option {
     readonly label: string;
@@ -197,6 +197,7 @@ function InspoBoard() {
 
         } catch (error) {
             console.error(error)
+            toast.error("I'm sorry, try again later")
         } finally {
             setIsSaving(false)
         }

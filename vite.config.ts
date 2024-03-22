@@ -10,10 +10,10 @@ export default defineConfig({
     crx({ 
       manifest: {
         "manifest_version": 3,
-        "name": "CRXJS React Vite Example",
+        "name": "Basedrop Space",
         "version": "1.0.0",
         "action": {
-            "default_title": "Click to open panel!"
+            "default_title": "Click for whiteboard!"
         },
         "side_panel": {
             "default_path": "index.html"
@@ -46,6 +46,13 @@ export default defineConfig({
             "service_worker": "src/background.ts",
             "type": "module"
         },
+        "web_accessible_resources": [{ 
+            "resources": ["*.png"],
+            "matches": [
+                "<all_urls>"
+            ]
+          }]
+          
     }
      }),
   ],

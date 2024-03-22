@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import './App.css'
-import 'react-tabs/style/react-tabs.css';
 import InspoBoard from './components/InspoBoard';
 import AuthContext, { BlockData } from './context/AuthContext';
 

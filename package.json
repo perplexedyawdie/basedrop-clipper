@@ -14,17 +14,12 @@
     "@blocknote/react": "^0.12.2",
     "@uiw/react-markdown-preview": "^5.1.1",
     "axios": "^1.6.7",
-    "dexie": "^3.2.6",
-    "dexie-react-hooks": "^1.1.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "react-select": "^5.8.0",
-    "react-tabs": "^6.0.2",
     "reactflow": "^11.10.4",
-    "swr": "^2.2.5",
-    "uuid": "^9.0.1",
-    "zod": "^3.22.4"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.23",
